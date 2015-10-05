@@ -45,7 +45,7 @@
   ],
   "dependencies": {
     "ember-cli-babel": "^5.1.3",
-    "ember-data-hal-9000": "^0.3.1"
+    "ember-data-hal-9000": "201-created/ember-data-hal-9000#925383c73976d7da8e073646825daf9753df10d7"
   },
   "ember-addon": {
     "configPath": "tests/dummy/config"
