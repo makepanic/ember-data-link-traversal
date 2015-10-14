@@ -91,6 +91,10 @@ save(store, 'user', 'threads', newThread).then(createdThread => {
 });
 ```
 
+### Saving and deleting existing records
+
+* uses ember data existing api
+
 ## Running Tests
 
 * `npm test` # test all scenarios in config/ember-try.js

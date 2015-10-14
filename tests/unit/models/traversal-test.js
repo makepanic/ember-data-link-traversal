@@ -448,3 +448,107 @@ test('it follows a given string path of linked relationships to a single record 
       }).catch(err(assert));
   });
 });
+
+test('it allows to delete an existing record using `deleteRecord()` and `save()`', function (assert) {
+  assert.expect(1);
+  let done = assert.async();
+
+  const USER_ID = '1234';
+
+  stubRequest('get', '/', (req) => req.ok({
+    _links: {
+      self: {href: `/`},
+      user: {
+        href: `/non-rest-adapter-path-user/${USER_ID}`
+      }
+    }
+  }));
+
+  stubRequest('get', `/non-rest-adapter-path-user/${USER_ID}`, (req) => req.ok({
+    id: USER_ID,
+    firstName: 'Guy',
+    lastName: 'Montag',
+    _links: {
+      self: {href: req.url},
+      threads: {href: `/non-rest-adapter-path-user/${USER_ID}/threads`}
+    }
+  }));
+
+  stubRequest('delete', `/non-rest-adapter-path-user/${USER_ID}`, (req) => {
+    req.ok({
+      id: USER_ID,
+      firstName: 'Guy',
+      lastName: 'Montag',
+      _links: {
+        self: {href: req.url},
+        threads: {href: `/non-rest-adapter-path-user/${USER_ID}/threads`}
+      }
+    });
+  });
+
+  let store = this.store();
+
+  run(() => {
+    follow(store, 'user')
+      .then(() => follow(store, 'user'))
+      .then(user => {
+        user.deleteRecord();
+        user.save().then(() => {
+          assert.ok(true, 'save resolved');
+          done();
+        });
+      }).catch(err(assert));
+  });
+});
+
+
+test('it allows to delete an existing record using `destroyRecord()`', function (assert) {
+  assert.expect(1);
+  let done = assert.async();
+
+  const USER_ID = '1234';
+
+  stubRequest('get', '/', (req) => req.ok({
+    _links: {
+      self: {href: `/`},
+      user: {
+        href: `/non-rest-adapter-path-user/${USER_ID}`
+      }
+    }
+  }));
+
+  stubRequest('get', `/non-rest-adapter-path-user/${USER_ID}`, (req) => req.ok({
+    id: USER_ID,
+    firstName: 'Guy',
+    lastName: 'Montag',
+    _links: {
+      self: {href: req.url},
+      threads: {href: `/non-rest-adapter-path-user/${USER_ID}/threads`}
+    }
+  }));
+
+  stubRequest('delete', `/non-rest-adapter-path-user/${USER_ID}`, (req) => {
+    req.ok({
+      id: USER_ID,
+      firstName: 'Guy',
+      lastName: 'Montag',
+      _links: {
+        self: {href: req.url},
+        threads: {href: `/non-rest-adapter-path-user/${USER_ID}/threads`}
+      }
+    });
+  });
+
+  let store = this.store();
+
+  run(() => {
+    follow(store, 'user')
+      .then(() => follow(store, 'user'))
+      .then(user => {
+        user.destroyRecord().then(() => {
+          assert.ok(true, 'save resolved');
+          done();
+        });
+      }).catch(err(assert));
+  });
+});

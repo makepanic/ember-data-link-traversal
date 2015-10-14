@@ -64,5 +64,12 @@ export default DS.JSONAPIAdapter.extend({
       templatedURL = this.applyURLTemplate(selfURL, {});
 
     return this.ajax(templatedURL, 'PUT', {data: snapshot.record.toJSON()});
+  },
+
+  deleteRecord (store, type, snapshot) {
+    let selfURL = extractRecordLinks(snapshot.record).self,
+      templatedURL = this.applyURLTemplate(selfURL, {});
+
+    return this.ajax(templatedURL, 'DELETE', {data: snapshot.record.toJSON()});
   }
 });
