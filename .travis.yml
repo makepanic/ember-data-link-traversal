@@ -11,9 +11,9 @@ cache:
 
 env:
   - EMBER_TRY_SCENARIO=default
-  - EMBER_TRY_SCENARIO=ember-data-1-13-4
-  - EMBER_TRY_SCENARIO=ember-data-1-13-9
-  - EMBER_TRY_SCENARIO=release
+  - EMBER_TRY_SCENARIO=ember-data-1-13-15
+  - EMBER_TRY_SCENARIO=ember-data-2-1-0
+  - EMBER_TRY_SCENARIO=ember-data-2-2-0
   - EMBER_TRY_SCENARIO=beta
   - EMBER_TRY_SCENARIO=canary
 
