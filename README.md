@@ -95,6 +95,31 @@ save(store, 'user', 'threads', newThread).then(createdThread => {
 
 * uses ember data existing api
 
+### Pagination
+
+* pagination in hal should done by following links on a collection response
+
+```json
+{
+  "_links": {
+    "next": { "href": "api.tld/threads?page=2" },
+    "self": { "href": "api.tld/threads{?page}" }
+  },
+  _embedded: […]
+}
+```
+
+* the `followUrl(store, modelClass, url, templateParams = {})` method allows you to load a given url
+
+```js
+follow(store, user, 'threads').then(threads => 
+  followUrl(store, threads.type, threads.get('meta.links.next')).then(nextPageThreads => {
+      …
+  })
+})
+
+```
+
 ## Running Tests
 
 * `npm test` # test all scenarios in config/ember-try.js

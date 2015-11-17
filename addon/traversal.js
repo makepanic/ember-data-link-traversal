@@ -99,6 +99,14 @@ function follow(store, first, ...paths) {
     followFromRoot(store, [first].concat(paths), templateParams);
 }
 
+function followUrl(store, modelClass, url, templateParams = {}) {
+  return store.query(modelClass.modelName, {
+    modelClass: modelClass,
+    [TRAVERSAL_QUERY_LINK]: url,
+    templateParams: templateParams
+  });
+}
+
 /**
  * Function to create a record by following a chain of link relations and POSTing the given record
  * @param {DS.Store} store Ember data store
@@ -115,18 +123,19 @@ function save(store, first, ...paths) {
   }
 
   return follow(...arguments).then(record => {
-      newRecord.set(TRAVERSAL_META, {
-        [TRAVERSAL_QUERY_LINK]: extractRecordLinks(record).self,
-        templateParams: templateParams
-      });
-
-      return newRecord.save();
+    newRecord.set(TRAVERSAL_META, {
+      [TRAVERSAL_QUERY_LINK]: extractRecordLinks(record).self,
+      templateParams: templateParams
     });
+
+    return newRecord.save();
+  });
 }
 
 export {
   save,
   follow,
+  followUrl,
   configure,
   extractRecordLinks,
   rootModel,

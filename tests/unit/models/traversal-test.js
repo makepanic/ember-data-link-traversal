@@ -5,7 +5,7 @@ import {
 import { stubRequest } from 'ember-cli-fake-server';
 import Ember from "ember";
 
-import {follow, save, configure} from 'ember-data-link-traversal/traversal';
+import {follow, followUrl, save, configure} from 'ember-data-link-traversal/traversal';
 
 configure({
   rootModel: 'root'
@@ -160,7 +160,6 @@ test('it follows by using a uri template', function (assert) {
   });
 });
 
-
 test('it follows a given record + string path of linked relationships to a single record', function (assert) {
   assert.expect(2);
 
@@ -210,7 +209,6 @@ test('it follows a given record + string path of linked relationships to a singl
     }).catch(err(assert));
   });
 });
-
 
 test('it follows a given record + string path of linked relationships to a single record by using a uri template', function (assert) {
   assert.expect(2);
@@ -550,5 +548,64 @@ test('it allows to delete an existing record using `destroyRecord()`', function 
           done();
         });
       }).catch(err(assert));
+  });
+});
+
+test('it follows a given path and loads the last records based on a given url', function (assert) {
+  assert.expect(2);
+
+  const done = assert.async(),
+    USER_ID = '1234';
+
+  stubRequest('get', '/', (req) => req.ok({
+    _links: {
+      self: {href: `/`},
+      user: {
+        href: `/user/${USER_ID}`
+      }
+    }
+  }));
+
+  stubRequest('get', `/user/${USER_ID}`, (req) => req.ok({
+    id: USER_ID,
+    firstName: 'Guy',
+    lastName: 'Montag',
+    _links: {
+      self: {href: req.url},
+      threads: {href: `/user/${USER_ID}/threads`}
+    }
+  }));
+
+  stubRequest('get', `/user/${USER_ID}/threads`, (req) => req.ok({
+    _links: {
+      self: {href: req.url},
+      next: {href: `${req.url}?page=${req.queryParams.page ? 3 : 2}`}
+    },
+    _embedded: {
+      threads: req.queryParams.page === '2' ? [{
+        id: 't-3',
+        title: 'thoughtcrime'
+      }] : [{
+        id: 't-1',
+        title: 'Ingsoc'
+      }, {
+        id: 't-2',
+        title: 'Ministries of Oceania'
+      }]
+    }
+  }));
+
+  run(() => {
+    let store = this.store();
+    follow(store, 'user').then(user => {
+      return follow(store, user, 'threads').then(threads => {
+        var nextPageUrl = threads.get('meta.links.next');
+        return followUrl(store, threads.type, nextPageUrl).then(moreThreads => {
+          assert.strictEqual(moreThreads.get('length'), 1);
+          assert.strictEqual(moreThreads.get('firstObject.title'), 'thoughtcrime');
+          done();
+        });
+      });
+    }).catch(err(assert));
   });
 });
